@@ -2,7 +2,7 @@ let player = null;
 let adPlaying = false;
 let needsUnMute = false;
 
-setInterval(() => {
+function doIt() {
   let e = document.getElementById("movie_player");
   if (e) {
     if (e.classList.contains("ad-showing")) {
@@ -13,6 +13,7 @@ setInterval(() => {
         console.log("ad started; muted");
       }
       p.muted = true;
+      p.style.filter = "blur(100px)";
     }
     else {
       if (adPlaying) {
@@ -20,9 +21,13 @@ setInterval(() => {
         if (needsUnMute) {
           let p = e.getElementsByTagName("video")[0];
           p.muted = false;
+          p.style.filter = null;
         }
         console.log("ad ended; unmuted");
       }
     }
   }
-}, 500);
+}
+
+setInterval(doIt, 500);
+doIt();
