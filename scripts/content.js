@@ -1,33 +1,28 @@
-let player = null;
-let adPlaying = false;
-let needsUnMute = false;
+const sheet = new CSSStyleSheet();
+sheet.replaceSync(
+  ":is(ytd-player, ytmusic-player):has(.ad-showing) video { filter: blur(100px); }"
+);
+document.adoptedStyleSheets.push(sheet);
 
-function doIt() {
-  let e = document.getElementById("movie_player");
-  if (e) {
-    if (e.classList.contains("ad-showing")) {
-      let p = e.getElementsByTagName("video")[0];
-      if (!adPlaying) {
-        adPlaying = true;
-        needsUnMute = !p.muted;
-        console.log("ad started; muted");
-      }
-      p.muted = true;
-      p.style.filter = "blur(100px)";
-    }
-    else {
-      if (adPlaying) {
-        adPlaying = false;
-        if (needsUnMute) {
-          let p = e.getElementsByTagName("video")[0];
-          p.muted = false;
-          p.style.filter = null;
-        }
-        console.log("ad ended; unmuted");
-      }
-    }
+function poll() {
+  for (const el of document.querySelectorAll(
+    ":is(ytd-player, ytmusic-player):has(.ad-showing) video:not([original-muted])"
+  )) {
+    el.setAttribute("original-muted", el.muted.toString());
+    el.muted = true;
+  }
+
+  for (const el of document.querySelectorAll(
+    ":is(ytd-player, ytmusic-player):not(:has(.ad-showing)) video[original-muted]"
+  )) {
+    const originalMuted = el.getAttribute("original-muted");
+    el.muted =
+      originalMuted == "true" ? true :
+      originalMuted == "false" ? false :
+      el.muted;
+    el.removeAttribute("original-muted");
   }
 }
 
-setInterval(doIt, 500);
-doIt();
+setInterval(poll, 500);
+poll();
