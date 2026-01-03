@@ -6,9 +6,11 @@ document.adoptedStyleSheets.push(sheet);
 
 function poll() {
   for (const el of document.querySelectorAll(
-    ":is(ytd-player, ytmusic-player):has(.ad-showing) video:not([original-muted])"
+    ":is(ytd-player, ytmusic-player):has(.ad-showing) video"
   )) {
-    el.setAttribute("original-muted", el.muted.toString());
+    if (!el.hasAttribute("original-muted")) {
+      el.setAttribute("original-muted", el.muted.toString());
+    }
     el.muted = true;
   }
 
